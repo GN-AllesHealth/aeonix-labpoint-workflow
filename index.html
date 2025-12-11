@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aeonix ↔ LabPoint Workflow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .container {
+            min-width: 2200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+            margin-bottom: 50px;
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        /* Main workflow container */
+        .workflow-container {
+            display: grid;
+            grid-template-columns: 200px repeat(5, 1fr);
+            grid-template-rows: auto auto auto auto;
+            gap: 0;
+            border: 3px solid #666;
+        }
+
+        /* Phase Headers - First Row */
+        .spacer {
+            background: white;
+            border-right: 2px solid #999;
+        }
+        
+        .phase-header {
+            text-align: center;
+            padding: 20px 15px;
+            background: #e8e8e8;
+            border-right: 2px solid #999;
+            border-bottom: 3px solid #666;
+            font-weight: 700;
+            font-size: 14px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .phase-header:last-child {
+            border-right: none;
+        }
+        
+        .phase-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+        
+        .phase-subtitle {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .phase-timeline {
+            font-size: 12px;
+            font-style: italic;
+            color: #777;
+            margin-top: 4px;
+        }
+        
+        /* Row Labels */
+        .row-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            padding: 20px;
+            border-right: 3px solid #666;
+            border-bottom: 3px solid #666;
+            text-align: center;
+        }
+        
+        .row-label:last-of-type {
+            border-bottom: none;
+        }
+        
+        .aeonix-label {
+            background: #B3E5E6;
+            color: #004D40;
+        }
+        
+        .integration-label {
+            background: #FFE082;
+            color: #F57F17;
+        }
+        
+        .labpoint-label {
+            background: #C8E6C9;
+            color: #1B5E20;
+        }
+        
+        /* Phase Content Cells */
+        .phase-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            gap: 12px;
+            position: relative;
+            border-right: 2px solid #ccc;
+            border-bottom: 3px solid #666;
+            min-height: 180px;
+        }
+        
+        .phase-content:nth-child(6n) {
+            border-right: none;
+        }
+        
+        .aeonix-row .phase-content {
+            background: #E0F7FA;
+        }
+        
+        .integration-row .phase-content {
+            background: #FFF9E6;
+        }
+        
+        .labpoint-row .phase-content {
+            background: #E8F5E9;
+        }
+        
+        .labpoint-row .phase-content:last-child {
+            border-bottom: none;
+        }
+        
+        /* Steps */
+        .step {
+            padding: 14px 18px;
+            border-radius: 8px;
+            border: 2px solid;
+            text-align: center;
+            font-size: 11.5px;
+            font-weight: 600;
+            line-height: 1.4;
+            width: 100%;
+            max-width: 180px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .step-aeonix {
+            background: #4DD0E1;
+            border-color: #00ACC1;
+            color: #004D40;
+        }
+        
+        .step-integration {
+            background: #FFD54F;
+            border-color: #FFA000;
+            color: #F57F17;
+        }
+        
+        .step-labpoint {
+            background: #81C784;
+            border-color: #4CAF50;
+            color: #1B5E20;
+        }
+        
+        .step-decision {
+            background: #4DD0E1;
+            border-color: #00ACC1;
+            color: #004D40;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            width: 110px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-size: 10.5px;
+        }
+        
+        .step-complete {
+            background: #66BB6A;
+            border-color: #2E7D32;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .timeline {
+            font-size: 9px;
+            color: #666;
+            font-weight: 600;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        /* Connection Arrows */
+        .arrow-down {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            color: #333;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .arrow-up {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            color: #333;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .arrow-label {
+            position: absolute;
+            font-size: 9px;
+            color: #fff;
+            background: #333;
+            font-weight: 700;
+            white-space: nowrap;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .arrow-down-label {
+            bottom: -52px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .arrow-up-label {
+            top: -52px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* Empty cells */
+        .empty-cell {
+            background: #fafafa;
+        }
+        
+        .wait-text {
+            font-size: 11px;
+            color: #999;
+            font-style: italic;
+            text-align: center;
+        }
+        
+        /* Legend */
+        .legend {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border: 3px solid #ddd;
+        }
+        
+        .legend h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 20px;
+        }
+        
+        .legend-items {
+            display: flex;
+            gap: 50px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .legend-box {
+            width: 45px;
+            height: 45px;
+            border: 3px solid;
+            border-radius: 6px;
+        }
+        
+        .key-points {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #00ACC1;
+        }
+        
+        .key-points strong {
+            color: #00ACC1;
+            display: block;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .key-points ul {
+            margin-left: 25px;
+            color: #666;
+            font-size: 14px;
+            line-height: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Aeonix ↔ LabPoint LIS Workflow</h1>
+        
+        <!-- COMPLETE WORKFLOW GRID -->
+        <div class="workflow-container">
+            
+            <!-- ROW 1: PHASE HEADERS -->
+            <div class="spacer"></div>
+            <div class="phase-header">
+                <span class="phase-title">Phase 1</span>
+                <span class="phase-subtitle">Sign-up & Booking</span>
+                <span class="phase-timeline">(Day 0)</span>
+            </div>
+            <div class="phase-header">
+                <span class="phase-title">Phase 2</span>
+                <span class="phase-subtitle">Order Creation</span>
+                <span class="phase-timeline">(Day 0)</span>
+            </div>
+            <div class="phase-header">
+                <span class="phase-title">Phase 3</span>
+                <span class="phase-subtitle">Check-in & Collection</span>
+                <span class="phase-timeline">(Appointment Day)</span>
+            </div>
+            <div class="phase-header">
+                <span class="phase-title">Phase 4</span>
+                <span class="phase-subtitle">Results Processing</span>
+                <span class="phase-timeline">(Days 0-14)</span>
+            </div>
+            <div class="phase-header">
+                <span class="phase-title">Phase 5</span>
+                <span class="phase-subtitle">Clinician Summary</span>
+                <span class="phase-timeline">(Days 14-28)</span>
+            </div>
+            
+            <!-- ROW 2: AEONIX -->
+            <div class="row-label aeonix-label">
+                <div>Aeonix<br>(Patient Side)</div>
+            </div>
+            
+            <!-- Aeonix Phase 1 -->
+            <div class="phase-content aeonix-row">
+                <div class="step step-aeonix">
+                    Patient Sign-up in Aeonix app<br/>
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="step step-aeonix">
+                    Select Test package and Payment
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="step-decision">
+                    <div>Validate<br/>Panel &<br/>Add-ons</div>
+                </div>
+                <div class="step step-aeonix">
+                    Process Payment<br/>via Stripe
+                    <div class="timeline">Day 0</div>
+                </div>
+            </div>
+            
+            <!-- Aeonix Phase 2 -->
+            <div class="phase-content aeonix-row" style="position: relative;">
+                <div class="step step-aeonix">
+                    Collect JSON Data<br/>Customer ID<br/>Order ID<br/>Demographics<br/>Test Panel
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="step step-aeonix">
+                    Generate QR Code<br/>(Contains JSON)
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="step step-aeonix">
+                    Get Confirmation<br/>Email + QR Code<br/>+ Pre-test Rules
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <span class="arrow-label arrow-down-label">JSON Order Data</span>
+            </div>
+            
+            <!-- Aeonix Phase 3 -->
+            <div class="phase-content aeonix-row empty-cell">
+                <div class="wait-text">
+                    Patient waits<br/>for appointment<br/>with QR code
+                </div>
+            </div>
+            
+            <!-- Aeonix Phase 4 -->
+            <div class="phase-content aeonix-row" style="position: relative;">
+                <div class="arrow-up">↑</div>
+                <span class="arrow-label arrow-up-label">JSON Status</span>
+                <div class="step step-aeonix">
+                    Receive Status<br/>HL7→JSON<br/>Store in DB
+                    <div class="timeline">Day 0-1</div>
+                </div>
+                <div class="arrow-up" style="left: 35%">↑</div>
+                <span class="arrow-label arrow-up-label" style="left: 35%">JSON Partial</span>
+                <div class="step step-aeonix">
+                    Display Partial<br/>Results<br/>Send Notification
+                    <div class="timeline">Days 3, 5, 10</div>
+                </div>
+                <div class="arrow-up" style="left: 65%">↑</div>
+                <span class="arrow-label arrow-up-label" style="left: 65%">JSON Complete</span>
+                <div class="step step-aeonix">
+                    Display Complete<br/>Results<br/>All Biomarkers
+                    <div class="timeline">Day ~14</div>
+                </div>
+            </div>
+            
+            <!-- Aeonix Phase 5 -->
+            <div class="phase-content aeonix-row" style="position: relative;">
+                <div class="arrow-up">↑</div>
+                <span class="arrow-label arrow-up-label">JSON Summary</span>
+                <div class="step step-aeonix">
+                    Display Clinician<br/>Summary<br/>Recommendations
+                    <div class="timeline">Days 14-28</div>
+                </div>
+                <div class="step step-aeonix step-complete">
+                    Send Final<br/>Notification<br/>Journey Complete!
+                    <div class="timeline">Days 14-28</div>
+                </div>
+            </div>
+            
+            <!-- ROW 3: INTEGRATION -->
+            <div class="row-label integration-label">
+                <div>Integration<br>(Mirth Connect)</div>
+            </div>
+            
+            <!-- Integration Phase 1 -->
+            <div class="phase-content integration-row empty-cell"></div>
+            
+            <!-- Integration Phase 2 -->
+            <div class="phase-content integration-row" style="position: relative;">
+                <div class="arrow-up">↑</div>
+                <div class="step step-integration">
+                    Parse JSON<br/>to HL7 v2.x<br/>ORM/ORU Format<br/>Map Segments:<br/>PID, PV1, OBR, OBX
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="arrow-down">↓</div>
+                <span class="arrow-label arrow-down-label">HL7 Order</span>
+            </div>
+            
+            <!-- Integration Phase 3 -->
+            <div class="phase-content integration-row empty-cell"></div>
+            
+            <!-- Integration Phase 4 -->
+            <div class="phase-content integration-row" style="position: relative;">
+                <div class="arrow-up">↑</div>
+                <span class="arrow-label arrow-up-label">HL7 Status</span>
+                <div class="step step-integration">
+                    Parse HL7→JSON<br/>Status Message
+                    <div class="timeline">Day 0-1</div>
+                </div>
+                <div class="arrow-down">↓</div>
+                
+                <div class="arrow-up" style="left: 35%">↑</div>
+                <span class="arrow-label arrow-up-label" style="left: 35%">HL7 Partial</span>
+                <div class="step step-integration">
+                    Parse HL7→JSON<br/>Partial Results
+                    <div class="timeline">Days 3, 5, 10</div>
+                </div>
+                <div class="arrow-down" style="left: 35%">↓</div>
+                
+                <div class="arrow-up" style="left: 65%">↑</div>
+                <span class="arrow-label arrow-up-label" style="left: 65%">HL7 Complete</span>
+                <div class="step step-integration">
+                    Parse HL7→JSON<br/>Complete Results
+                    <div class="timeline">Day ~14</div>
+                </div>
+                <div class="arrow-down" style="left: 65%">↓</div>
+            </div>
+            
+            <!-- Integration Phase 5 -->
+            <div class="phase-content integration-row" style="position: relative;">
+                <div class="arrow-up">↑</div>
+                <span class="arrow-label arrow-up-label">HL7 Notes</span>
+                <div class="step step-integration">
+                    Parse HL7→JSON<br/>Clinician Notes<br/>& Recommendations
+                    <div class="timeline">Days 14-28</div>
+                </div>
+                <div class="arrow-down">↓</div>
+            </div>
+            
+            <!-- ROW 4: LABPOINT -->
+            <div class="row-label labpoint-label">
+                <div>LabPoint<br>(Laboratory Side)</div>
+            </div>
+            
+            <!-- LabPoint Phase 1 -->
+            <div class="phase-content labpoint-row empty-cell"></div>
+            
+            <!-- LabPoint Phase 2 -->
+            <div class="phase-content labpoint-row" style="position: relative;">
+                <div class="arrow-up">↑</div>
+                <div class="step step-labpoint">
+                    Receive HL7<br/>Order Message<br/>Auto-create in LIS
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="wait-text" style="margin-top: 10px; color: #1B5E20;">
+                    Wait for patient<br/>arrival
+                </div>
+            </div>
+            
+            <!-- LabPoint Phase 3 -->
+            <div class="phase-content labpoint-row" style="position: relative;">
+                <div class="step step-labpoint">
+                    Patient Arrives<br/>Shows QR Code
+                    <div class="timeline">Appointment Day</div>
+                </div>
+                <div class="step step-labpoint">
+                    Scan QR Code<br/>Decode JSON<br/>Auto Check-in
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="step step-labpoint">
+                    Verify Patient<br/>Identity
+                    <div class="timeline">Day 0</div>
+                </div>
+                <div class="step step-labpoint">
+                    Collect Blood<br/>Sample<br/>Link to LIS Order
+                    <div class="timeline">Day 0</div>
+                </div>
+                <!--<div class="arrow-down">↓</div>-->
+            </div>
+            
+            <!-- LabPoint Phase 4 -->
+            <div class="phase-content labpoint-row" style="position: relative;">
+                <div class="arrow-up">↑</div>
+                <div class="step step-labpoint">
+                    Process Sample<br/>in LIS<br/>Run Biochemical<br/>Tests
+                    <div class="timeline">Days 0-14</div>
+                </div>
+                <div class="step step-labpoint">
+                    Send HL7<br/>Status Message
+                    <div class="timeline">Day 0-1</div>
+                </div>
+                <!--<div class="arrow-down">↓</div>-->
+                
+                <div class="step step-labpoint">
+                    Generate & Send<br/>HL7 Partial Results<br/>(Biomarker Sets)
+                    <div class="timeline">Days 3, 5, 10</div>
+                </div>
+                <!--<div class="arrow-down" style="left: 35%">↓</div>-->
+                
+                <div class="step step-labpoint">
+                    Generate & Send<br/>HL7 Complete<br/>Results (All Data)
+                    <div class="timeline">Day ~14</div>
+                </div>
+                <!--<div class="arrow-down" style="left: 65%">↓</div>-->
+            </div>
+            
+            <!-- LabPoint Phase 5 -->
+            <div class="phase-content labpoint-row" style="position: relative;">
+                <div class="step step-labpoint">
+                    Clinician Review<br/>Analyze Results<br/>Risk Assessment
+                    <div class="timeline">Days 14-28</div>
+                </div>
+                <div class="step step-labpoint">
+                    Write Clinical<br/>Summary &<br/>Recommendations
+                    <div class="timeline">Days 14-28</div>
+                </div>
+                <div class="step step-labpoint">
+                    Export & Send<br/>HL7 Clinician<br/>Notes
+                    <div class="timeline">Days 14-28</div>
+                </div>
+                <!--<div class="arrow-down">↓</div>-->
+            </div>
+            
+        </div>
+        
+        <!-- LEGEND -->
+        <div class="legend">
+            <h3>📋 Legend & Key Integration Points</h3>
+            
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #4DD0E1; border-color: #00ACC1;"></div>
+                    <div>
+                        <strong style="font-size: 15px;">Aeonix Activities</strong><br>
+                        <span style="font-size: 13px; color: #666;">Patient-facing app operations</span>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #FFD54F; border-color: #FFA000;"></div>
+                    <div>
+                        <strong style="font-size: 15px;">Integration Layer</strong><br>
+                        <span style="font-size: 13px; color: #666;">Mirth Connect - Data transformation</span>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box" style="background: #81C784; border-color: #4CAF50;"></div>
+                    <div>
+                        <strong style="font-size: 15px;">LabPoint Activities</strong><br>
+                        <span style="font-size: 13px; color: #666;">Laboratory LIS operations</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="key-points">
+                <strong>🔑 Complete Data Flow Summary:</strong>
+                <ul>
+                    <li><strong>Phase 1 - Sign-up & Booking:</strong> Patient creates account, selects payment plan and tests, validates panel, processes payment through Stripe</li>
+                    <li><strong>Phase 2 - Order Creation:</strong> Aeonix collects complete JSON data (Customer ID, Order ID, demographics, test panel) → Generates QR code → Mirth converts JSON to HL7 ORM/ORU → LabPoint receives and auto-creates LIS order</li>
+                    <li><strong>Phase 3 - Check-in & Collection:</strong> Patient arrives with QR code → Staff scans QR to decode JSON instantly → System auto check-in (no manual entry) → Sample collected and linked to LIS order</li>
+                    <li><strong>Phase 4 - Results Processing:</strong> LabPoint processes samples and generates HL7 messages (status + partial results on days 3,5,10 + complete results on day 14) → Mirth converts each HL7 to JSON → Aeonix stores in database and displays progressively in app with notifications</li>
+                    <li><strong>Phase 5 - Clinician Summary:</strong> Clinician reviews complete results in LIS → Writes summary with recommendations in patient's preferred language → Exports as HL7 → Mirth converts to JSON → Aeonix displays final summary and sends completion notification</li>
+                    <li><strong>QR Code Innovation:</strong> Works like airline boarding pass - contains all booking data, enables instant check-in, and reduces manual data entry errors</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
